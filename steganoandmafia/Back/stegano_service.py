@@ -4,6 +4,8 @@ from cryptography.hazmat.backends import default_backend
 from secrets import token_bytes
 from stegano import lsb
 
+#genere une cle secret selon l'AES
+
 def generate_key(encryption_type):
     if encryption_type == "AES-128":
         return token_bytes(16)
@@ -13,6 +15,8 @@ def generate_key(encryption_type):
         return token_bytes(32)
     else:
         raise ValueError("Type de chiffrement non valide.")
+    
+#crype le message avec la cle genere
 
 def encrypt_message(message, key):
     iv = token_bytes(16)
@@ -25,6 +29,8 @@ def encrypt_message(message, key):
     encrypted_message = iv + encryptor.update(padded_message) + encryptor.finalize()
     return encrypted_message
 
+#decrypte le message avec la cle donnee
+
 def decrypt_message(encrypted_message, key):
     iv = encrypted_message[:16]
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
@@ -36,10 +42,14 @@ def decrypt_message(encrypted_message, key):
 
     return message.decode()
 
+#cache le message dans l'image
+
 def encode_message(image_path, message):
     encoded_image_path = f"{image_path}_encoded.png"
     lsb.hide(image_path, message.hex()).save(encoded_image_path)
     return encoded_image_path
+
+#extre le message de l'image
 
 def decode_message(image_path):
     return bytes.fromhex(lsb.reveal(image_path))
